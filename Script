@@ -1,0 +1,71 @@
+Dim lastrow As Long
+    Dim i As Long
+    Dim j As Long
+    Dim t As Long
+    Dim s As Long
+    Dim count As Long
+    Dim opening As Double
+    Dim closing As Double
+    Dim volume As Double
+    Dim ticker As String
+    Dim percent_change As Double
+    For Each ws In Worksheets
+        percent_change = 0
+        lastrow = ws.Cells(Rows.count, 1).End(xlUp).Row
+        count = 2
+        volume = 0
+        opening = ws.Cells(2, 3).Value
+        ticker = ws.Cells(2, 1).Value
+        ws.Cells(1, 9).Value = "Ticker"
+        ws.Cells(1, 10).Value = "Yearly Change"
+        ws.Cells(1, 11).Value = "Percent Change"
+        ws.Cells(1, 12).Value = "Total Stock Volume"
+        ws.Cells(2, 15).Value = "Greatest % Increase"
+        ws.Cells(3, 15).Value = "Greatest % Decrease"
+        ws.Cells(4, 15).Value = "Greatest Total Volume"
+        ws.Cells(1, 16).Value = "Ticker"
+        ws.Cells(1, 17).Value = "Value"
+        For i = 2 To lastrow
+            volume = volume + ws.Cells(i, 7).Value
+            If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+                closing = ws.Cells(i, 6).Value
+                percent_change = (closing - opening) / opening
+                ws.Cells(count, 9).Value = ticker
+                ws.Cells(count, 10).Value = closing - opening
+                If (closing - opening > 0) Then
+                    ws.Cells(count, 10).Interior.ColorIndex = 4
+                ElseIf (closing - opening < 0) Then
+                    ws.Cells(count, 10).Interior.ColorIndex = 3
+                End If
+                ws.Cells(count, 11).Value = percent_change
+                ws.Cells(count, 11).NumberFormat = "0.00%"
+                ws.Cells(count, 12).Value = volume
+                opening = ws.Cells(i + 1, 3).Value
+                ticker = ws.Cells(i + 1, 1).Value
+                count = count + 1
+                volume = 0
+            End If
+        Next i
+        ws.Cells(2, 17).Value = Application.WorksheetFunction.Max(Worksheets(ws.Name).Range("k:k"))
+        ws.Cells(2, 17).NumberFormat = "0.00%"
+        ws.Cells(3, 17).Value = Application.WorksheetFunction.Min(Worksheets(ws.Name).Range("k:k"))
+        ws.Cells(3, 17).NumberFormat = "0.00%"
+        ws.Cells(4, 17).Value = Application.WorksheetFunction.Max(Worksheets(ws.Name).Range("l:l"))
+        ws.Cells(4, 17).NumberFormat = "##0.00E+0"
+        For j = 2 To lastrow
+            If ws.Cells(2, 17).Value = ws.Cells(j, 11) Then
+                ws.Cells(2, 16).Value = ws.Cells(j, 9)
+            End If
+        Next j
+        For s = 2 To lastrow
+            If ws.Cells(3, 17).Value = ws.Cells(s, 11) Then
+                ws.Cells(3, 16).Value = ws.Cells(s, 9)
+            End If
+        Next s
+        For t = 2 To lastrow
+            If ws.Cells(4, 17).Value = ws.Cells(t, 12) Then
+                ws.Cells(4, 16).Value = ws.Cells(t, 9)
+            End If
+        Next t
+    Next ws
+End Sub
